@@ -110,18 +110,27 @@ const AgenticDashboard = ({ walletAddress, web3 }) => {
     setPaused(!paused);
   };
 
-  const addMerchant = () => {
+  const addMerchant = async () => {
     if (!newMerchant.name || !newMerchant.wallet || !newMerchant.limit) {
       return alert("Fill all fields");
     }
 
-    setMerchants((prev) => [
-      ...prev,
-      { id: Date.now(), ...newMerchant },
-    ]);
+    try {
+      alert("Transaction Pending...");
+      await contract.methods
+        .addMerchant(newMerchant.wallet, newMerchant.name)
+        .send({ from: walletAddress });
 
-    setNewMerchant({ name: "", wallet: "", limit: "" });
-    setShowAddModal(false);
+      setMerchants((prev) => [
+        ...prev,
+        { id: Date.now(), ...newMerchant },
+      ]);
+      setNewMerchant({ name: "", wallet: "", limit: "" });
+      setShowAddModal(false);
+      alert("Success!");
+    } catch (error) {
+      alert(error?.message || "Transaction failed");
+    }
   };
 
   const removeMerchant = () => {
